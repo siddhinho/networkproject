@@ -69,9 +69,16 @@ public class CommentAdapter extends BaseAdapter {
                 holder.commentTextView.setText(jsonObject.getString("content"));
 
                 holder.imageView = (ImageView) view.findViewById(R.id.imageView);
-                Glide.with(mContext)
-                        .load(jsonObject.getString("image"))
-                        .into(holder.imageView);
+                if(jsonObject.getString("uploaded_image").contains("https")){
+                    Glide.with(mContext)
+                            .load(jsonObject.getString("uploaded_image"))
+                            .into(holder.imageView);
+
+                }else{
+                    Glide.with(mContext)
+                            .load(jsonObject.getString("image"))
+                            .into(holder.imageView);
+                }
 
                 view.setTag(holder);
 
@@ -93,6 +100,7 @@ public class CommentAdapter extends BaseAdapter {
                     Glide.with(mContext)
                             .load(jsonObject.getString("uploaded_image"))
                             .into(holder.imageView);
+
                 }else{
                     Glide.with(mContext)
                             .load(jsonObject.getString("image"))

@@ -7,34 +7,34 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ListView;
+import android.widget.EditText;
 
 import org.json.JSONArray;
 
-public class ListActivity extends AppCompatActivity {
-    private ListView list;
+public class LoginActivity extends AppCompatActivity {
+
     private ProgressDialog progress;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_list);
-        comments();
+        setContentView(R.layout.activity_login);
     }
 
-    private void comments(){
-        progress = ProgressDialog.show(ListActivity.this, "", "Autenticando usuário.", true, true);
-        Network net = new Network(ListActivity.this);
+    private void login(String email, String password){
+        progress = ProgressDialog.show(LoginActivity.this, "", "Autenticando usuário.", true, true);
+        Network net = new Network(LoginActivity.this);
 
-        net.comments(new Network.HttpCallback() {
+
+        net.login(email, password, new Network.HttpCallback() {
             @Override
-            public void onSuccess(final JSONArray response) {
+            public void onSuccess(final String response) {
                 progress.dismiss();
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        list = (ListView) findViewById(R.id.listView);
-                        CommentAdapter meuAdapter = new CommentAdapter(getLayoutInflater(), response, ListActivity.this);
-                        list.setAdapter(meuAdapter);
+                        startActivity(new Intent(LoginActivity.this,ListActivity.class));
+                        finish();
                     }
                 });
             }
@@ -46,10 +46,10 @@ public class ListActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         new PersistentCookieStore(getApplicationContext()).removeAll();
-                        AlertDialog.Builder alert = new AlertDialog.Builder(ListActivity.this);
+                        AlertDialog.Builder alert = new AlertDialog.Builder(LoginActivity.this);
                         try {
                             if (throwable == null || throwable.getMessage() == null) {
-                                alert.setTitle("Erro ao coletar dados");
+                                alert.setTitle("Erro ao autenticar o fiscal!");
                             } else if (throwable != null) {
                                 if (throwable.getMessage().contains("Unable to resolve host")) {//
                                     alert.setTitle("Sem internet!");
@@ -69,7 +69,7 @@ public class ListActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onSuccess(final String response) {
+            public void onSuccess(final JSONArray response) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {}
@@ -78,7 +78,10 @@ public class ListActivity extends AppCompatActivity {
         });
     }
 
-    public void showActivityComments(View view) {
-        startActivity(new Intent(ListActivity.this,MainActivity.class));
+    public void login(View view) {
+        EditText emailText = findViewById(R.id.emailEditText);
+        EditText passwordText = findViewById(R.id.passwordEditText);
+
+        login(emailText.getText().toString(), passwordText.getText().toString());
     }
 }
